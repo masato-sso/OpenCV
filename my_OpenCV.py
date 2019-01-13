@@ -44,7 +44,6 @@ def convert_BGR(filename):
     tmp_img[:,:,0]=blue
     tmp_img[:,:,2]=red
 
-    imshow(tmp_img)
     return tmp_img
 
 def convert_GRAYSCALE(filename):
