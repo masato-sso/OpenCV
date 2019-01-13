@@ -1,3 +1,2 @@
 # OpenCV
-OpenCVをPythonで自作するリポジトリ　　　
-numpyとmatplotlibのみを使用する
+OpenCVをPythonで自作するリポジトリで、numpyとmatplotlibのみを使用する
