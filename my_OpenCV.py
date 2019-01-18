@@ -82,5 +82,29 @@ def discriminant_Binarization(filename):
     input->Binarization (using discriminant analysis method)
     return numpy.array
     '''
+    img=convert_GRAYSCALE(filename).astype(np.uint8)
+
+    tmp_img=img.copy()
+    H,W=tmp_img.shape
+
+    Max_sigma=0
+    Max_t=0
+
+    for t in range(1,255):
+        v0=tmp_img[np.where(tmp_img<t)]
+        m0=np.mean(v0) if len(v0)>0 else 0
+        w0=len(v0)/(H*W)
+        v1=tmp_img[np.where(tmp_img>=t)]
+        m1=np.mean(v1) if len(v1)>0 else 0
+        w1=len(v1)/(H*W)
+        sigma=w0*w1*((m0-m1)**2)
+        if sigma>Max_sigma:
+            Max_sigma=sigma
+            Max_t=t
     
-    return 
+    threshold=Max_t
+
+    tmp_img[tmp_img<threshold]=0
+    tmp_img[tmp_img>=threshold]=255
+
+    return tmp_img
