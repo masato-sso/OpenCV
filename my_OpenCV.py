@@ -157,3 +157,37 @@ def reverse_H(filename):
     tmp_img=(tmp_img*255).astype(np.uint8)
     
     return tmp_img
+
+def color_reduction(filename):
+    '''
+    RGB->32,96,160,224
+    return numpy.array
+    '''
+    img=imread(filename)
+
+    tmp_img=img.copy()
+
+    red=tmp_img[:,:,0].copy()
+    green=tmp_img[:,:,1].copy()
+    blue=tmp_img[:,:,2].copy()
+
+    red[np.where((0<=red) & (red<63))]=32
+    red[np.where((63<=red) & (red<127))]=96
+    red[np.where((127<=red) & (red<191))]=160
+    red[np.where((191<=red) & (red<256))]=224
+
+    green[np.where((0<=green) & (green<63))]=32
+    green[np.where((63<=green) & (green<127))]=96
+    green[np.where((127<=green) & (green<191))]=160
+    green[np.where((191<=green) & (green<256))]=224
+
+    blue[np.where((0<=blue) & (blue<63))]=32
+    blue[np.where((63<=blue) & (blue<127))]=96
+    blue[np.where((127<=blue) & (blue<191))]=160
+    blue[np.where((191<=blue) & (blue<256))]=224
+
+    tmp_img[:,:,0]=red
+    tmp_img[:,:,1]=green
+    tmp_img[:,:,2]=blue
+
+    return tmp_img
