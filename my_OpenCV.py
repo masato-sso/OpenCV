@@ -85,6 +85,7 @@ def discriminant_Binarization(filename):
     img=convert_GRAYSCALE(filename).astype(np.uint8)
 
     tmp_img=img.copy()
+
     H,W=tmp_img.shape
 
     Max_sigma=0
@@ -190,4 +191,24 @@ def color_reduction(filename):
     tmp_img[:,:,1]=green
     tmp_img[:,:,2]=blue
 
+    return tmp_img
+
+def Average_Pooling(filename):
+    '''
+    128x128->8x8 pooling
+    return numpy.array
+    '''
+    img=imread(filename)
+    
+    tmp_img=img.copy()
+    H,W,CHANNEL=tmp_img.shape
+    BLOCK=8
+    UNIT_H=int(H/BLOCK)
+    UNIT_W=int(W/BLOCK)
+
+    for h in range(UNIT_H):
+        for w in range(UNIT_W):
+            for c in range(CHANNEL):
+                tmp_img[BLOCK*h:BLOCK*(h+1),BLOCK*w:BLOCK*(w+1),c]=np.mean(tmp_img[BLOCK*h:BLOCK*(h+1),BLOCK*w:BLOCK*(w+1),c]).astype(np.int)
+    
     return tmp_img
