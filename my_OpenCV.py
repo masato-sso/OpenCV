@@ -230,4 +230,38 @@ def Max_Pooling(filename):
         for w in range(UNIT_W):
             for c in range(CHANNEL):
                 tmp_img[BLOCK*h:BLOCK*(h+1),BLOCK*w:BLOCK*(w+1),c]=np.max(tmp_img[BLOCK*h:BLOCK*(h+1),BLOCK*w:BLOCK*(w+1),c])
+    
+    return tmp_img
+
+def Gaussian_Filter(filename,ksize=3,sigma=1.3):
+    '''
+    input->Gaussian Filter->result
+    @default parameter
+    ksize=3x3=9
+    sigma=1.3
+    using zero-padding
+    return numpy.array
+    '''
+    img=imread(filename)
+
+    H,W,CHANNEL=img.shape
+    PAD=ksize//2
+
+    tmp_img=np.zeros((H+PAD*2,W+PAD*2,CHANNEL),dtype=np.float)
+    tmp_img[PAD:PAD+H,PAD:PAD+W]=img.copy().astype(np.float)
+
+    kernel=np.zeros((ksize,ksize),dtype=np.float)
+    for h in range(-PAD,-PAD+ksize):
+        for w in range(-PAD,-PAD+ksize):
+            kernel[h+PAD,w+PAD]=np.exp(-(w**2+h**2)/(2*(sigma**2)))
+    kernel/=(sigma*np.sqrt(2*np.pi))
+    kernel/=kernel.sum()
+
+    for h in range(H):
+        for w in range(W):
+            for c in range(CHANNEL):
+                tmp_img[PAD+h,PAD+w,c]=np.sum(kernel*tmp_img[h:h+ksize,w:w+ksize,c])
+    
+    tmp_img=tmp_img[PAD:PAD+h,PAD:PAD+w].astype(np.uint8)
+
     return tmp_img
