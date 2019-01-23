@@ -265,3 +265,28 @@ def Gaussian_Filter(filename,ksize=3,sigma=1.3):
     tmp_img=tmp_img[PAD:PAD+h,PAD:PAD+w].astype(np.uint8)
 
     return tmp_img
+
+def Median_Filter(filename,ksize=3):
+    '''
+    input->Median Filter->result
+    @default parameter
+    ksize=3x3
+    using zero-padding
+    return numpy.array
+    '''
+    img=imread(filename)
+
+    H,W,CHANNEL=img.shape
+    PAD=ksize//2
+
+    tmp_img=np.zeros((H+PAD*2,W+PAD*2,CHANNEL),dtype=np.float)
+    tmp_img[PAD:PAD+H,PAD:PAD+W]=img.copy().astype(np.float)
+
+    for h in range(H):
+        for w in range(W):
+            for c in range(CHANNEL):
+                tmp_img[PAD+h,PAD+w,c]=np.median(tmp_img[h:h+ksize,w:w+ksize,c])
+    
+    tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
+
+    return tmp_img
