@@ -316,4 +316,31 @@ def Smoothing_Filter(filename,ksize=3):
 
     return tmp_img
 
+def Motion_Filter(filename,ksize=3):
+    '''
+    input->Motion_Filter->result
+    @default parameter
+    ksize=3x3
+    using zero-padding
+    return numpy.array
+    '''
+    img=imread(filename)
+
+    H,W,CHANNEL=img.shape
+    K=np.diag([1]*ksize).astype(np.float)/ksize
+    PAD=ksize//2
+    
+    tmp_img=np.zeros((H+PAD*2,W+PAD*2,CHANNEL),dtype=np.float)
+    tmp_img[PAD:PAD+H,PAD:PAD+W]=img.copy().astype(np.float)
+    tmp=tmp_img.copy()
+
+    for h in range(H):
+        for w in range(W):
+            for c in range(CHANNEL):
+                tmp_img[PAD+h,PAD+w,c]=np.sum(K*tmp[h:h+ksize,w:w+ksize,c])
+    
+    tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
+    
+
+    return tmp_img
 
