@@ -329,7 +329,7 @@ def Motion_Filter(filename,ksize=3):
     H,W,CHANNEL=img.shape
     K=np.diag([1]*ksize).astype(np.float)/ksize
     PAD=ksize//2
-    
+
     tmp_img=np.zeros((H+PAD*2,W+PAD*2,CHANNEL),dtype=np.float)
     tmp_img[PAD:PAD+H,PAD:PAD+W]=img.copy().astype(np.float)
     tmp=tmp_img.copy()
@@ -341,6 +341,5 @@ def Motion_Filter(filename,ksize=3):
     
     tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
     
-
     return tmp_img
 
