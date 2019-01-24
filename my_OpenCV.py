@@ -343,3 +343,28 @@ def Motion_Filter(filename,ksize=3):
     
     return tmp_img
 
+def MAX_MIN_Filter(filename,ksize=3):
+    '''
+    input->MAX-MIN Filter->result
+    @default parameter
+    ksize=3x3
+    using zero-padding
+    return numpy.array
+    '''
+    
+    img=imread(filename)
+    H,W,CHANNEL=img.shape
+
+    gray_img=convert_GRAYSCALE(filename)
+
+    PAD=ksize//2
+    tmp_img=np.zeros((H+PAD*2,W+PAD*2),dtype=np.float)
+    tmp_img[PAD:PAD+H,PAD:PAD+W]=gray_img.copy().astype(np.float)
+
+    for h in range(H):
+        for w in range(W):
+            tmp_img[PAD+h,PAD+w]=np.max(tmp_img[h:h+ksize,w:w+ksize])-np.min(tmp_img[h:h+ksize,w:w+ksize])
+    
+    tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
+    
+    return tmp_img
