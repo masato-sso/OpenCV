@@ -368,15 +368,15 @@ def MAX_MIN_Filter(filename,ksize=3):
     
     return tmp_img
 
-def Differential_Filter(filename,ksize=3,img_type="vertical"):
+def Differential_Filter(filename,img_type="vertical"):
     '''
     input->Differential Filter->result
     @default parameter
-    ksize=3x3
     type=vertical image
     using zero-padding
     return numpy.array
     '''
+    ksize=3
     img=imread(filename)
     H,W,CHANNEL=img.shape
 
@@ -405,15 +405,15 @@ def Differential_Filter(filename,ksize=3,img_type="vertical"):
     
     return tmp_img
 
-def Sobel_Filter(filename,ksize=3,img_type="vertical"):
+def Sobel_Filter(filename,img_type="vertical"):
     '''
     input->Sobel Filter->result
     @default parameter
-    ksize=3x3
     type=vertical image
     using zero-padding
     return numpy.array
     '''
+    ksize=3
     img=imread(filename)
     H,W,CHANNEL=img.shape
 
@@ -442,15 +442,15 @@ def Sobel_Filter(filename,ksize=3,img_type="vertical"):
     
     return tmp_img
 
-def Prewitt_Filter(filename,ksize=3,img_type="vertical"):
+def Prewitt_Filter(filename,img_type="vertical"):
     '''
     input->Prewitt Filter->result
     @default parameter
-    ksize=3x3
     type=vertical image
     using zero-padding
     return numpy.array
     '''
+    ksize=3
     img=imread(filename)
     H,W,CHANNEL=img.shape
 
