@@ -478,3 +478,32 @@ def Prewitt_Filter(filename,ksize=3,img_type="vertical"):
     tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
     
     return tmp_img
+
+def Laplacian_Filter(filename):
+    '''
+    input->Laplacian Filter->result
+    using zero-padding
+    return numpy.array
+    '''
+    ksize=3
+    img=imread(filename)
+    H,W,CHANNEL=img.shape
+
+    gray_img=convert_GRAYSCALE(filename).astype(np.uint8)
+
+    PAD=ksize//2
+    tmp_img=np.zeros((H+PAD*2,W+PAD*2),dtype=np.float)
+    tmp_img[PAD:PAD+H,PAD:PAD+W]=gray_img.copy().astype(np.float)
+    tmp=tmp_img.copy()
+
+
+    for h in range(H):
+        for w in range(W):
+            K=[[0.,1.,0.],
+               [1.,-4.,1.],
+               [0.,1.,0.]]
+            tmp_img[PAD+h,PAD+w]=np.mean(K*(tmp[h:h+ksize,w:w+ksize]))
+    
+    tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
+    
+    return tmp_img
