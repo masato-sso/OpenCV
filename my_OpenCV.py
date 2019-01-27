@@ -536,3 +536,35 @@ def Emboss_Filter(filename):
     tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
     
     return tmp_img
+
+def LoG_Filter(filename):
+    '''
+    input->LoG Filter->result
+    using zero-padding
+    return numpy.array
+    '''
+    ksize=5
+    sigma=3
+    img=imread(filename)
+    H,W,CHANNEL=img.shape
+
+    PAD=ksize//2
+    gray_img=convert_GRAYSCALE(filename).astype(np.uint8)
+    tmp_img=np.zeros((H+PAD*2,W+PAD*2),dtype=np.float)
+    tmp_img[PAD:PAD+H,PAD:PAD+W]=gray_img.copy().astype(np.float)
+    tmp=tmp_img.copy()
+
+    kernel=np.zeros((ksize,ksize),dtype=np.float)
+    for h in range(-PAD,-PAD+ksize):
+        for w in range(-PAD,-PAD+ksize):
+            kernel[h+PAD,w+PAD]=(w**2+h**2-sigma**2)*np.exp(-(w**2+h**2)/(2*(sigma**2)))
+    kernel/=(2*np.pi*(sigma**6))
+    kernel/=kernel.sum()
+
+    for h in range(H):
+        for w in range(W):
+            tmp_img[PAD+h,PAD+w]=np.sum(kernel*tmp[h:h+ksize,w:w+ksize])
+    
+    tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
+
+    return tmp_img
