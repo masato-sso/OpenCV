@@ -568,3 +568,27 @@ def LoG_Filter(filename):
     tmp_img=tmp_img[PAD:PAD+H,PAD:PAD+W].astype(np.uint8)
 
     return tmp_img
+
+def trans_GRAYSCALE(filename):
+    '''
+    input img->histogram nomalization->result img
+    using gray-scale transformation
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    MIN=0
+    MAX=255
+    IMG_MAX=max(max(i) for sub_img in img for i in sub_img)
+    IMG_MIN=min(min(i) for sub_img in img for i in sub_img)
+
+    tmp_img=img.copy()
+    tmp_img[tmp_img<MIN]=MIN
+    tmp_img[tmp_img>MAX]=MAX
+
+    tmp_img=(MAX-MIN)/(IMG_MAX-IMG_MIN)*(tmp_img-IMG_MIN)+MIN
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
+
