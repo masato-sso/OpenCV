@@ -592,3 +592,20 @@ def trans_GRAYSCALE(filename):
 
     return tmp_img
 
+def trans_NORMAL(filename,mean=128,std=52):
+    '''
+    input img->normal img
+    not dynamic range
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    m=np.mean(img)
+    s=np.std(img)
+
+    tmp_img=img.copy()
+    tmp_img=std/s*(tmp_img-m)+mean
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
