@@ -609,3 +609,26 @@ def trans_NORMAL(filename,mean=128,std=52):
     tmp_img=tmp_img.astype(np.uint8)
 
     return tmp_img
+
+def hist_flatten(filename):
+    '''
+    input img->flatten->result img
+    using histogram
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    T=float(H*W*CHANNEL)
+    MAX=255
+
+    tmp_img=img.copy()
+    s=0
+    for i in range(1,256):
+        idx=np.where(img==i)
+        s+=len(img[idx])
+        tmp_img[idx]=MAX/T*s
+    
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
