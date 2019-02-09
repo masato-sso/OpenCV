@@ -632,3 +632,22 @@ def hist_flatten(filename):
     tmp_img=tmp_img.astype(np.uint8)
 
     return tmp_img
+
+def gamma_correction(filename):
+    '''
+    input img->gamma correction->result img
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+
+    tmp_img=img.copy()
+    C=1.0
+    GAMMA=2.2
+
+    tmp_img/=255
+    tmp_img=(1/C*tmp_img)**(1/GAMMA)
+    tmp_img*=255
+
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
