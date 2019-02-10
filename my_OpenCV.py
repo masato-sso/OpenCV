@@ -651,3 +651,24 @@ def gamma_correction(filename):
     tmp_img=tmp_img.astype(np.uint8)
 
     return tmp_img
+
+def nearest_neighbor_interpolation(filename,expansion_rate=1.5):
+    '''
+    input img->nearest neighbor interpolation->result img
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+    
+    expand_H=int(expansion_rate * H)
+    expand_W=int(expansion_rate * W)
+    
+    y=np.arange(expand_H).repeat(expand_W).reshape(expand_W, -1)
+    x=np.tile(np.arange(expand_W), (expand_H, 1))
+    y=np.round(y/expansion_rate).astype(np.int)
+    x=np.round(x/expansion_rate).astype(np.int)
+    
+    tmp_img=img[y,x]
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
