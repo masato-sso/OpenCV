@@ -672,3 +672,36 @@ def nearest_neighbor_interpolation(filename,expansion_rate=1.5):
     tmp_img=tmp_img.astype(np.uint8)
 
     return tmp_img
+
+def Bi_linear_interpolation(filename,expansion_rate=1.5):
+    '''
+    input img->Bi-linear interpolation->result img
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    expand_H=int(expansion_rate*H)
+    expand_W=int(expansion_rate*W)
+
+    y=np.arange(expand_H).repeat(expand_W).reshape(expand_W,-1)
+    x=np.tile(np.arange(expand_W),(expand_H,1))
+    y=y/expansion_rate
+    x=x/expansion_rate
+
+    y_idx=np.floor(y).astype(np.int)
+    x_idx=np.floor(x).astype(np.int)
+    y_idx=np.minimum(y_idx,H-2)
+    x_idx=np.minimum(x_idx,W-2)
+
+    dy=y-y_idx
+    dx=x-x_idx
+    dy=np.repeat(np.expand_dims(dy,axis=-1),3,axis=-1)
+    dx=np.repeat(np.expand_dims(dx,axis=-1),3,axis=-1)
+
+    tmp_img=(1-dx)*(1-dy)*img[y_idx,x_idx]+dx*(1-dy)*img[y_idx,x_idx+1]+(1-dx)*dy*img[y_idx+1,x_idx]+dx*dy*img[y_idx+1,x_idx+1]
+    
+    tmp_img[tmp_img>255]=255
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
