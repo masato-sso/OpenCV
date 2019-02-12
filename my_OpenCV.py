@@ -705,3 +705,67 @@ def Bi_linear_interpolation(filename,expansion_rate=1.5):
     tmp_img=tmp_img.astype(np.uint8)
 
     return tmp_img
+
+def Bi_cubic_interpolation(filename,expansion_rate=1.5):
+    '''
+    input img->Bi-cubic interpolation->result img
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    expand_H=int(expansion_rate*H)
+    expand_W=int(expansion_rate*W)
+
+    y=np.arange(expand_H).repeat(expand_W).reshape(expand_W,-1)
+    x=np.tile(np.arange(expand_W),(expand_H,1))
+    y=y/expansion_rate
+    x=x/expansion_rate
+
+    y_idx=np.floor(y).astype(np.int)
+    x_idx=np.floor(x).astype(np.int)
+    y_idx=np.minimum(y_idx,H-1)
+    x_idx=np.minimum(x_idx,W-1)
+
+    dy2=y-y_idx
+    dx2=x-x_idx
+    dy1=dy2+1
+    dx1=dx2+1
+    dy3=1-dy2
+    dx3=1-dx2
+    dy4=1+dy3
+    dx4=1+dx3
+
+    dy=[dy1,dy2,dy3,dy4]
+    dx=[dx1,dx2,dx3,dx4]
+
+    W_sum=np.zeros((expand_H,expand_W,CHANNEL),dtype=np.float32)
+    tmp_img=np.zeros((expand_H,expand_W,CHANNEL),dtype=np.float32)
+
+    def calc_weight(t):
+        a=-1
+        at=np.abs(t)
+        w=np.zeros_like(t)
+        idx=np.where(at<=1)
+        w[idx]=((a+2)*np.power(at,3)-(a+3)*np.power(at,2)+1)[idx]
+        idx=np.where((at>1) & (at<=2))
+        w[idx]=(a*np.power(at,3)-5*a*np.power(at,2)+8*a*at-4*a)[idx]
+        return w
+
+
+    for j in range(-1,3):
+        for i in range(-1,3):
+            y_img=np.minimum(np.maximum(y_idx+j,0),H-1)
+            x_img=np.minimum(np.maximum(x_idx+i,0),W-1)
+            y_weight=calc_weight(dy[j+1])
+            x_weight=calc_weight(dx[i+1])
+            y_weight=np.repeat(np.expand_dims(y_weight,axis=-1),3,axis=-1)
+            x_weight=np.repeat(np.expand_dims(x_weight,axis=-1),3,axis=-1)
+            W_sum+=x_weight*y_weight
+            tmp_img+=x_weight*y_weight*img[y_img,x_img]
+    
+    tmp_img/=W_sum
+    tmp_img[tmp_img>255]=255
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
