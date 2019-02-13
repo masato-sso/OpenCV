@@ -769,3 +769,37 @@ def Bi_cubic_interpolation(filename,expansion_rate=1.5):
     tmp_img=tmp_img.astype(np.uint8)
 
     return tmp_img
+
+def Affine_trans(filename,x=0,y=0):
+    '''
+    input img->Affine->result img
+    translation
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float32)
+    H,W,CHANNEL=img.shape
+
+    #########
+    ## matrix
+    ## a  b
+    ## c  d
+    #########
+    a=1.0
+    b=0.0
+    c=0.0
+    d=1.0
+
+    Y=np.arange(H).repeat(W).reshape(W,-1)
+    X=np.tile(np.arange(W),(H,1))
+    tmp_img=np.zeros((H+1,W+1,CHANNEL),dtype=np.float32)
+
+    X_d=a*X+b*Y+x
+    Y_d=c*X+d*Y+y
+    X_d=np.minimum(np.maximum(X_d,0),W).astype(np.int)
+    Y_d=np.minimum(np.maximum(Y_d,0),H).astype(np.int)
+
+    tmp_img[Y_d,X_d]=img[Y,X]
+    tmp_img=tmp_img[:H,:W]
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
