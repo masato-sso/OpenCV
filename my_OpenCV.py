@@ -803,3 +803,34 @@ def Affine_trans(filename,x=0,y=0):
     tmp_img=tmp_img.astype(np.uint8)
 
     return tmp_img
+
+def Affine_resize(filename,w_ratio=1.0,h_ratio=1.0):
+    '''
+    input img->Affine->result img
+    scaling
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    tmp_img=np.zeros((H+2,W+2,CHANNEL),dtype=np.float32)
+    tmp_img[1:H+1,1:W+1]=img
+
+    H_d=np.round(H*h_ratio).astype(np.int)
+    W_d=np.round(W*w_ratio).astype(np.int)
+    result=np.zeros((H_d+1,W_d+1,CHANNEL),dtype=np.float32)
+
+    X_d=np.tile(np.arange(W_d),(H_d,1))
+    Y_d=np.arange(H_d).repeat(W_d).reshape(H_d,-1)
+    deter=w_ratio*h_ratio
+    X=np.round((h_ratio*X_d)/deter).astype(np.int)+1
+    Y=np.round((w_ratio*Y_d)/deter).astype(np.int)+1
+    X=np.minimum(np.maximum(X,0),W+1).astype(np.int)
+    Y=np.minimum(np.maximum(Y,0),H+1).astype(np.int)
+
+    result[Y_d,X_d]=tmp_img[Y,X]
+    result=result[:H_d,:W_d]
+    result=result.astype(np.uint8)
+
+    return result
+
