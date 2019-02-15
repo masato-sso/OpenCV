@@ -834,3 +834,43 @@ def Affine_resize(filename,w_ratio=1.0,h_ratio=1.0):
 
     return result
 
+def Affine_rotate(filename,rotate=0):
+    '''
+    input img->Affine->result img
+    rotation
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    theta=np.pi*rotate/180
+    #########
+    ## matrix
+    ## a  b
+    ## c  d
+    #########
+    a=np.cos(theta)
+    b=-np.sin(theta)
+    c=np.sin(theta)
+    d=np.cos(theta)
+
+    tmp_img=np.zeros((H+2,W+2,CHANNEL),dtype=np.float32)
+    tmp_img[1:H+1,1:W+1]=img
+
+    H_d=np.round(H).astype(np.int)
+    W_d=np.round(W).astype(np.int)
+    result=np.zeros((H_d,W_d,CHANNEL),dtype=np.float32)
+
+    X_d=np.tile(np.arange(W_d),(H_d,1))
+    Y_d=np.arange(H_d).repeat(W_d).reshape(H_d,-1)
+    deter=a*d-b*c
+    X=np.round((d*X_d-b*Y_d)/deter).astype(np.int)+1
+    Y=np.round((-c*X_d+a*Y_d)/deter).astype(np.int)+1
+    X=np.minimum(np.maximum(X,0),W+1).astype(np.int)
+    Y=np.minimum(np.maximum(Y,0),H+1).astype(np.int)
+
+    result[Y_d,X_d]=tmp_img[Y,X]
+    result=result.astype(np.uint8)
+
+    return result
+
