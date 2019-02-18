@@ -912,3 +912,60 @@ def Affine_scue(filename,dx=0,dy=0):
     result=result.astype(np.uint8)
 
     return result
+
+def DFT(filename):
+    '''
+    Discrete Fourier Transformation
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    gray_img=convert_GRAYSCALE(filename)
+
+    K=W
+    L=H
+    M=W
+    N=H
+    G=np.zeros((L,K),dtype=np.complex)
+    x=np.tile(np.arange(W),(H,1))
+    y=np.arange(H).repeat(W).reshape(H,-1)
+
+    for h in range(L):
+        for w in range(K):
+            G[h,w]=np.sum(gray_img*np.exp(-2j*np.pi*(x*w/M+y*h/N)))/np.sqrt(M*N)
+    ps=(np.abs(G)/np.abs(G).max()*255).astype(np.uint8)
+
+    return ps
+
+def IDFT(filename):
+    '''
+    Inverse Discrete Fourier Transformation
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    gray_img=convert_GRAYSCALE(filename)
+
+    K=W
+    L=H
+    M=W
+    N=H
+    G=np.zeros((L,K),dtype=np.complex)
+    x=np.tile(np.arange(W),(H,1))
+    y=np.arange(H).repeat(W).reshape(H,-1)
+
+    for h in range(L):
+        for w in range(K):
+            G[h,w]=np.sum(gray_img*np.exp(-2j*np.pi*(x*w/M+y*h/N)))/np.sqrt(M*N)
+    
+    result=np.zeros((H,W),dtype=np.float)
+
+    for h in range(H):
+        for w in range(W):
+            result[h,w]=np.abs(np.sum(G*np.exp(2j*np.pi*(x*w/M+y*h/N))))/np.sqrt(M*N)
+    
+    result[result>255]=255
+    result=result.astype(np.uint8)
+
+    return result
+
