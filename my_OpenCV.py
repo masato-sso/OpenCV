@@ -969,3 +969,53 @@ def IDFT(filename):
 
     return result
 
+def Low_Pass_Filter(filename):
+    '''
+    input img->Low-pass Filter->result img
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    gray_img=convert_GRAYSCALE(filename)
+
+    K=W
+    L=H
+    M=W
+    N=H
+    G=np.zeros((L,K),dtype=np.complex)
+    x=np.tile(np.arange(W),(H,1))
+    y=np.arange(H).repeat(W).reshape(H,-1)
+
+    for h in range(L):
+        for w in range(K):
+            G[h,w]=np.sum(gray_img*np.exp(-2j*np.pi*(x*w/M+y*h/N)))/np.sqrt(M*N)
+    
+    low_pass_G=np.zeros_like(G)
+    low_pass_G[:H//2,:W//2]=G[H//2:,W//2:]
+    low_pass_G[:H//2,W//2:]=G[H//2,:W//2]
+    low_pass_G[H//2:,:W//2]=G[:H//2,W//2:]
+    low_pass_G[H//2:,W//2:]=G[:H//2,:W//2]
+    p=0.5
+    X=x-W//2
+    Y=y-H//2
+    r=np.sqrt(X**2+Y**2)
+    mask=np.ones((H,W),dtype=np.float)
+    mask[r>(W//2*p)]=0
+    
+    low_pass_G*=mask
+    G[:H//2,:W//2]=low_pass_G[H//2:,W//2:]
+    G[:H//2,W//2:]=low_pass_G[H//2:,:W//2]
+    G[H//2:,:W//2]=low_pass_G[:H//2,W//2:]
+    G[H//2:,W//2:]=low_pass_G[:H//2,:W//2]
+
+    result=np.zeros((H,W),dtype=np.float)
+
+    for h in range(N):
+        for w in range(M):
+            result[h,w]=np.abs(np.sum(G*np.exp(2j*np.pi*(x*w/M+y*h/N))))/np.sqrt(M*N)
+    
+    result[result>255]=255
+    result=result.astype(np.uint8)
+
+    return result
