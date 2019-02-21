@@ -1047,7 +1047,7 @@ def High_Pass_Filter(filename):
     high_pass_G[:H//2,W//2:]=G[H//2,:W//2]
     high_pass_G[H//2:,:W//2]=G[:H//2,W//2:]
     high_pass_G[H//2:,W//2:]=G[:H//2,:W//2]
-    p=0.5
+    p=0.2
     X=x-W//2
     Y=y-H//2
     r=np.sqrt(X**2+Y**2)
