@@ -1123,3 +1123,80 @@ def Band_Pass_Filter(filename):
     result=result.astype(np.uint8)
 
     return result
+
+def DCT(filename,ksize=8):
+    '''
+    input img->Discrete Cosine Transformation->result img
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    gray=convert_GRAYSCALE(filename)
+
+    X=np.zeros((H,W),dtype=np.float)
+
+    def assign_weight(x,y,u,v):
+        cu=1.0
+        cv=1.0
+        if u==0:
+            cu/=np.sqrt(2)
+        if v==0:
+            cv/=np.sqrt(2)
+        theta=np.pi/(2*ksize)
+        return ((2*cu*cv/ksize)*np.cos((2*x+1)*u*theta)*np.cos(2*y+1)*v*theta)
+    
+    for yidx in range(0,H,ksize):
+        for xidx in range(0,W,ksize):
+            for v in range(ksize):
+                for u in range(ksize):
+                    for y in range(ksize):
+                        for x in range(ksize):
+                            X[v+yidx,u+xidx]+=gray[y+yidx,x+xidx]*assign_weight(x,y,u,v)
+    
+    result=np.zeros((H,W),dtype=np.float)
+    for yidx in range(0,H,ksize):
+        for xidx in range(0,W,ksize):
+            for y in range(ksize):
+                for x in range(ksize):
+                    for v in range(ksize):
+                        for u in range(ksize):
+                            result[y+yidx,x+xidx]+=X[v+yidx,u+xidx]*assign_weight(x,y,u,v)
+    
+    result[result>255]=255
+    result=np.round(result).astype(np.uint8)
+    
+    return result
+
+def IDCT(filename,dct_array,ksize=8):
+    '''
+    input img->Inverse Discrete Cosine Transformation->result img
+    return numpy.array
+    '''
+    tmp_img=imread(filename).astype(np.float)
+    H,W,CHANNEL=tmp_img.shape
+    X=dct_array.copy()
+    result=np.zeros((H,W),dtype=np.float)
+
+    def assign_weight(x,y,u,v):
+        cu=1.0
+        cv=1.0
+        if u==0:
+            cu/=np.sqrt(2)
+        if v==0:
+            cv/=np.sqrt(2)
+        theta=np.pi/(2*ksize)
+        return ((2*cu*cv/ksize)*np.cos((2*x+1)*u*theta)*np.cos(2*y+1)*v*theta)
+
+    for yidx in range(0,H,ksize):
+        for xidx in range(0,W,ksize):
+            for y in range(ksize):
+                for x in range(ksize):
+                    for v in range(ksize):
+                        for u in range(ksize):
+                            result[y+yidx,x+xidx]+=X[v+yidx,u+xidx]*assign_weight(x,y,u,v)
+    
+    result[result>255]=255
+    result=np.round(result).astype(np.uint8)
+
+    return result
