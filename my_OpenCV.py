@@ -1129,12 +1129,12 @@ def DCT(filename,ksize=8):
     input img->Discrete Cosine Transformation->result img
     return numpy.array
     '''
-    img=imread(filename).astype(np.float)
+    img=imread(filename).astype(np.float32)
     H,W,CHANNEL=img.shape
 
-    gray=convert_GRAYSCALE(filename)
+    gray=convert_GRAYSCALE(filename).astype(np.float32)
 
-    X=np.zeros((H,W),dtype=np.float)
+    X=np.zeros((H,W),dtype=np.float32)
 
     def assign_weight(x,y,u,v):
         cu=1.0
@@ -1144,7 +1144,7 @@ def DCT(filename,ksize=8):
         if v==0:
             cv/=np.sqrt(2)
         theta=np.pi/(2*ksize)
-        return ((2*cu*cv/ksize)*np.cos((2*x+1)*u*theta)*np.cos(2*y+1)*v*theta)
+        return ((2*cu*cv/ksize)*np.cos((2*x+1)*u*theta)*np.cos((2*y+1)*v*theta))
     
     for yidx in range(0,H,ksize):
         for xidx in range(0,W,ksize):
@@ -1154,19 +1154,7 @@ def DCT(filename,ksize=8):
                         for x in range(ksize):
                             X[v+yidx,u+xidx]+=gray[y+yidx,x+xidx]*assign_weight(x,y,u,v)
     
-    result=np.zeros((H,W),dtype=np.float)
-    for yidx in range(0,H,ksize):
-        for xidx in range(0,W,ksize):
-            for y in range(ksize):
-                for x in range(ksize):
-                    for v in range(ksize):
-                        for u in range(ksize):
-                            result[y+yidx,x+xidx]+=X[v+yidx,u+xidx]*assign_weight(x,y,u,v)
-    
-    result[result>255]=255
-    result=np.round(result).astype(np.uint8)
-    
-    return result
+    return X
 
 def IDCT(filename,dct_array,ksize=8):
     '''
@@ -1186,7 +1174,7 @@ def IDCT(filename,dct_array,ksize=8):
         if v==0:
             cv/=np.sqrt(2)
         theta=np.pi/(2*ksize)
-        return ((2*cu*cv/ksize)*np.cos((2*x+1)*u*theta)*np.cos(2*y+1)*v*theta)
+        return ((2*cu*cv/ksize)*np.cos((2*x+1)*u*theta)*np.cos((2*y+1)*v*theta))
 
     for yidx in range(0,H,ksize):
         for xidx in range(0,W,ksize):
