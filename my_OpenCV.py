@@ -1188,3 +1188,44 @@ def IDCT(filename,dct_array,ksize=8):
     result=np.round(result).astype(np.uint8)
 
     return result
+
+def DCT_quantization(filename,ksize=8):
+    '''
+    input img->Discrete Cosine Transformation->result img
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float32)
+    H,W,CHANNEL=img.shape
+    Q = np.array(((16, 11, 10, 16, 24, 40, 51, 61),
+              (12, 12, 14, 19, 26, 58, 60, 55),
+              (14, 13, 16, 24, 40, 57, 69, 56),
+              (14, 17, 22, 29, 51, 87, 80, 62),
+              (18, 22, 37, 56, 68, 109, 103, 77),
+              (24, 35, 55, 64, 81, 104, 113, 92),
+              (49, 64, 78, 87, 103, 121, 120, 101),
+              (72, 92, 95, 98, 112, 100, 103, 99)), dtype=np.float32)
+
+    gray=convert_GRAYSCALE(filename).astype(np.float32)
+
+    X=np.zeros((H,W),dtype=np.float32)
+
+    def assign_weight(x,y,u,v):
+        cu=1.0
+        cv=1.0
+        if u==0:
+            cu/=np.sqrt(2)
+        if v==0:
+            cv/=np.sqrt(2)
+        theta=np.pi/(2*ksize)
+        return ((2*cu*cv/ksize)*np.cos((2*x+1)*u*theta)*np.cos((2*y+1)*v*theta))
+    
+    for yidx in range(0,H,ksize):
+        for xidx in range(0,W,ksize):
+            for v in range(ksize):
+                for u in range(ksize):
+                    for y in range(ksize):
+                        for x in range(ksize):
+                            X[v+yidx,u+xidx]+=gray[y+yidx,x+xidx]*assign_weight(x,y,u,v)
+            X[yidx:yidx+ksize,xidx:xidx+ksize]=np.round(X[yidx:yidx+ksize,xidx:xidx+ksize]/Q)*Q
+    
+    return X
