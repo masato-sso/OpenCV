@@ -1257,3 +1257,88 @@ def RGB2YCbCr(filename,Y_r=1.0,Cb_r=1.0,Cr_r=1.0):
     tmp_img=tmp_img.astype(np.uint8)
 
     return tmp_img
+
+def compress_JPEG(filename):
+    '''
+    JPEG->compress(YCbCr,DCT,IDCT)->result
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    red=img[:,:,0]
+    green=img[:,:,1]
+    blue=img[:,:,2]
+
+    Y =0.2990*red+0.5870*green+0.1140*blue
+    Cb=-0.1687*red-0.3313*green+0.5000*blue+128
+    Cr=0.5000*red-0.4817*green-0.0813*blue+128
+
+    tmp_img=np.zeros_like(img,dtype=np.float)
+    tmp_img[:,:,0]=Y
+    tmp_img[:,:,1]=Cb
+    tmp_img[:,:,2]=Cr
+
+    ksize=8
+
+    Q1=np.array(((16, 11, 10, 16, 24, 40, 51, 61),
+              (12, 12, 14, 19, 26, 58, 60, 55),
+              (14, 13, 16, 24, 40, 57, 69, 56),
+              (14, 17, 22, 29, 51, 87, 80, 62),
+              (18, 22, 37, 56, 68, 109, 103, 77),
+              (24, 35, 55, 64, 81, 104, 113, 92),
+              (49, 64, 78, 87, 103, 121, 120, 101),
+              (72, 92, 95, 98, 112, 100, 103, 99)), dtype=np.float32)
+    
+    Q2=np.array(((17, 18, 24, 47, 99, 99, 99, 99),
+               (18, 21, 26, 66, 99, 99, 99, 99),
+               (24, 26, 56, 99, 99, 99, 99, 99),
+               (47, 66, 99, 99, 99, 99, 99, 99),
+               (99, 99, 99, 99, 99, 99, 99, 99),
+               (99, 99, 99, 99, 99, 99, 99, 99),
+               (99, 99, 99, 99, 99, 99, 99, 99),
+               (99, 99, 99, 99, 99, 99, 99, 99)), dtype=np.float32)
+
+    X=np.zeros((H,W,CHANNEL),dtype=np.float32)
+
+    def assign_weight(x,y,u,v):
+        cu=1.0
+        cv=1.0
+        if u==0:
+            cu/=np.sqrt(2)
+        if v==0:
+            cv/=np.sqrt(2)
+        theta=np.pi/(2*ksize)
+        return ((2*cu*cv/ksize)*np.cos((2*x+1)*u*theta)*np.cos((2*y+1)*v*theta))
+    
+    for yidx in range(0,H,ksize):
+        for xidx in range(0,W,ksize):
+            for v in range(ksize):
+                for u in range(ksize):
+                    for y in range(ksize):
+                        for x in range(ksize):
+                            for c in range(CHANNEL):
+                                X[v+yidx,u+xidx,c]+=tmp_img[y+yidx,x+xidx,c]*assign_weight(x,y,u,v)
+            X[yidx:yidx+ksize,xidx:xidx+ksize,0]=np.round(X[yidx:yidx+ksize,xidx:xidx+ksize,0]/Q1)*Q1
+            X[yidx:yidx+ksize,xidx:xidx+ksize,1]=np.round(X[yidx:yidx+ksize,xidx:xidx+ksize,1]/Q2)*Q2
+            X[yidx:yidx+ksize,xidx:xidx+ksize,2]=np.round(X[yidx:yidx+ksize,xidx:xidx+ksize,2]/Q2)*Q2
+    
+    tmp=np.zeros((H,W,3),dtype=np.float)
+
+    for yidx in range(0,H,ksize):
+        for xidx in range(0,W,ksize):
+            for y in range(ksize):
+                for x in range(ksize):
+                    for v in range(ksize):
+                        for u in range(ksize):
+                            tmp[y+yidx,x+xidx]+=X[v+yidx,u+xidx]*assign_weight(x,y,u,v)
+    
+    result=np.zeros_like(img,dtype=np.float)
+    result[:,:,0]=tmp[:,:,0]+(tmp[:,:,2]-128)*1.4020
+    result[:,:,1]=tmp[:,:,0]-(tmp[:,:,1]-128)*0.3441-(tmp[:,:,2]-128)*0.7139
+    result[:,:,2]=tmp[:,:,0]+(tmp[:,:,1]-128)*1.7718
+
+    result[result>255]=255
+    result=result.astype(np.uint8)
+
+    return result
