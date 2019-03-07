@@ -1229,3 +1229,31 @@ def DCT_quantization(filename,ksize=8):
             X[yidx:yidx+ksize,xidx:xidx+ksize]=np.round(X[yidx:yidx+ksize,xidx:xidx+ksize]/Q)*Q
     
     return X
+
+def RGB2YCbCr(filename,Y_r=1.0,Cb_r=1.0,Cr_r=1.0):
+    '''
+    RGB->YCbCr
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+
+    red=img[:,:,0]
+    green=img[:,:,1]
+    blue=img[:,:,2]
+
+    Y =0.2990*red+0.5870*green+0.1140*blue
+    Cb=-0.1687*red-0.3313*green+0.5000*blue+128
+    Cr=0.5000*red-0.4817*green-0.0813*blue+128
+
+    Y=Y*Y_r
+    Cb=Cb*Cb_r
+    Cr=Cr*Cr_r
+
+    tmp_img=np.zeros_like(img,dtype=np.float)
+    tmp_img[:,:,0]=Y+(Cr-128)*1.4020
+    tmp_img[:,:,1]=Y-(Cb-128)*0.3441-(Cr-128)*0.7139
+    tmp_img[:,:,2]=Y+(Cb-128)*1.7718
+
+    tmp_img=tmp_img.astype(np.uint8)
+
+    return tmp_img
