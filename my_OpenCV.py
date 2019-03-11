@@ -1342,3 +1342,67 @@ def compress_JPEG(filename):
     result=result.astype(np.uint8)
 
     return result
+
+def extract_edge(filename):
+    '''
+    input->Gaussian Filter
+    ->Sobel Filter
+    ->Non-maximum suppression
+    ->extract edge
+    ->result 
+    return numpy.array(edge intensity),numpy.array(edge angle)
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    gray=convert_GRAYSCALE(filename).astype(np.float)
+
+    ksize=5
+    sigma=1.4
+    PAD=ksize//2
+    G=np.zeros((H+PAD*2,W+PAD*2),dtype=np.float)
+    G=np.pad(gray,(PAD,PAD),"edge")
+    tmp_G=G.copy()
+
+    # Gaussian Filter
+    K=np.zeros((ksize,ksize),dtype=np.float)
+    for x in range(-PAD,-PAD+ksize):
+        for y in range(-PAD,-PAD+ksize):
+            K[y+PAD,x+PAD]=np.exp(-(x^2+y^2)/(2*(sigma**2)))
+    K/=(sigma*np.sqrt(2*np.pi))
+    K/=K.sum()
+
+    for y in range(H):
+        for x in range(W):
+            G[PAD+y,PAD+x]=np.sum(K*tmp_G[y:y+ksize,x:x+ksize])
+    
+    SV = np.array(((-1., -2., -1.), (0., 0., 0.), (1., 2., 1.)), dtype=np.float)
+    SH = np.array(((-1., 0., 1.), (-2., 0., 2.), (-1., 0., 1.)), dtype=np.float)
+
+    G=G[PAD-1:H+PAD+1,PAD-1:W+PAD+1]
+    Y=np.zeros_like(G,dtype=np.float)
+    X=np.zeros_like(G,dtype=np.float)
+    ksize=3
+    PAD=ksize//2
+
+    for y in range(H):
+        for x in range(W):
+            Y[PAD+y,PAD+x]=np.sum(SV*G[y:y+ksize,x:x+ksize])
+            X[PAD+y,PAD+x]=np.sum(SH*G[y:y+ksize,x:x+ksize])
+    
+    X=X[PAD:PAD+H,PAD:PAD+W]
+    Y=Y[PAD:PAD+H,PAD:PAD+W]
+
+    edge=np.sqrt(np.power(X,2)+np.power(Y,2))
+    X[X==0]=1e-5
+    theta=np.arctan(Y/X)
+
+    angle=np.zeros_like(theta,dtype=np.uint8)
+    angle[np.where((theta > -0.4142) & (theta <= 0.4142))] = 0
+    angle[np.where((theta > 0.4142) & (theta < 2.4142))] = 45
+    angle[np.where((theta >= 2.4142) | (theta <= -2.4142))] = 95
+    angle[np.where((theta > -2.4142) & (theta <= -0.4142))] = 135
+
+    angle=angle.astype(np.uint8)
+
+    return edge,angle
