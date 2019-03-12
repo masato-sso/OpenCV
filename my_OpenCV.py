@@ -1376,6 +1376,7 @@ def extract_edge(filename):
         for x in range(W):
             G[PAD+y,PAD+x]=np.sum(K*tmp_G[y:y+ksize,x:x+ksize])
     
+    # Sobel Filter
     SV = np.array(((-1., -2., -1.), (0., 0., 0.), (1., 2., 1.)), dtype=np.float)
     SH = np.array(((-1., 0., 1.), (-2., 0., 2.), (-1., 0., 1.)), dtype=np.float)
 
@@ -1402,6 +1403,32 @@ def extract_edge(filename):
     angle[np.where((theta > 0.4142) & (theta < 2.4142))] = 45
     angle[np.where((theta >= 2.4142) | (theta <= -2.4142))] = 95
     angle[np.where((theta > -2.4142) & (theta <= -0.4142))] = 135
+
+    # Non-Maximum Suppression
+    for y in range(H):
+        for x in range(W):
+            if angle[y,x]==0:
+                dx1,dy1,dx2,dy2=-1,0,1,0
+            elif angle[y,x]==45:
+                dx1,dy1,dx2,dy2=-1,1,1,-1
+            elif angle[y,x]==90:
+                dx1,dy1,dx2,dy2=0,-1,0,1
+            elif angle[y,x]==135:
+                dx1,dy1,dx2,dy2=-1,-1,1,1
+            if x==0:
+                dx1=max(dx1,0)
+                dx2=max(dx2,0)
+            if x==W-1:
+                dx1=min(dx1,0)
+                dx2=min(dx2,0)
+            if y==0:
+                dy1=max(dy1,0)
+                dy2=max(dy2,0)
+            if y==H-1:
+                dy1=min(dy1,0)
+                dy2=min(dy2,0)
+            if max(max(edge[y,x],edge[y+dy1,x+dx1]),edge[y+dy2,x+dx2])!=edge[y,x]:
+                edge[y,x]=0
 
     angle=angle.astype(np.uint8)
 
