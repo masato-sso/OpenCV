@@ -1348,6 +1348,7 @@ def extract_edge(filename):
     input->Gaussian Filter
     ->Sobel Filter
     ->Non-maximum suppression
+    ->Histeresis threshold
     ->extract edge
     ->result 
     return numpy.array(edge intensity),numpy.array(edge angle)
@@ -1429,7 +1430,32 @@ def extract_edge(filename):
                 dy2=min(dy2,0)
             if max(max(edge[y,x],edge[y+dy1,x+dx1]),edge[y+dy2,x+dx2])!=edge[y,x]:
                 edge[y,x]=0
+    
+    # Histeresis threshold
+    HT=100
+    LT=30
+    edge[edge>=HT]=255
+    edge[edge<=LT]=0
 
+    tmp_edge=np.zeros((H+2,W+2),dtype=np.float)
+    tmp_edge[1:H+1,1:W+1]=edge
+
+    nn=np.array(((1.0,1.0,1.0),
+                 (1.0,0,1.0),
+                 (1.0,1.0,1.0)),dtype=np.float)
+    
+    for y in range(1,H+2):
+        for x in range(1,W+2):
+            if tmp_edge[y,x]<LT or tmp_edge[y,x]>HT:
+                continue
+            if np.max(tmp_edge[y-1:y+2,x-1:x+2]*nn)>=HT:
+                tmp_edge[y,x]=255
+            else:
+                tmp_edge[y,x]=0
+    
+    edge=tmp_edge[1:H+1,1:W+1]
+
+    edge=edge.astype(np.uint8)
     angle=angle.astype(np.uint8)
 
     return edge,angle
