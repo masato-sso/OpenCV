@@ -1498,11 +1498,26 @@ def Hough_transform(filename):
     y_idx=x_idx.copy()
     ts=x_idx%180
     rs=y_idx//180
-    tmp_hough=np.zeros_like(hough,dtype=np.int)
-    tmp_hough[rs,ts]=255
 
-    tmp_hough=tmp_hough.astype(np.uint8)
-
+    # Inverse Hough Transform
+    result=img.copy()
+    for theta,rx in zip(ts,rs):
+        t=np.pi/180*theta
+        for x in range(W):
+            if np.sin(t)!=0:
+                y=-(np.cos(t)/np.sin(t))*x+rx/np.sin(t)
+                y=int(y)
+                if y>=H or y<0:
+                    continue
+                result[y,x]=[255,0,0]
+        for y in range(H):
+            if np.cos(t)!=0:
+                x=-(np.sin(t)/np.cos(t))*y+rx/np.cos(t)
+                x=int(x)
+                if x>=W or x<0:
+                    continue
+                result[y,x]=[255,0,0]
     
+    result=result.astype(np.uint8)
 
-    return
+    return result
