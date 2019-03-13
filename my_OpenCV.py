@@ -1471,7 +1471,7 @@ def Hough_transform(filename):
     edge,angle=extract_edge(filename)
 
     rmax=np.ceil(np.sqrt(H**2+W**2)).astype(np.int)
-    hough=np.zeros((1,180),dtype=np.int)
+    hough=np.zeros((rmax,180),dtype=np.int)
     idx=np.where(edge==255)
 
     for y,x in zip(idx[0],idx[1]):
@@ -1482,7 +1482,27 @@ def Hough_transform(filename):
     
     hough=hough.astype(np.uint8)
 
+    # Non-Maximum Suppression
+    for y in range(rmax):
+        for x in range(180):
+            x1=max(x-1,0)
+            x2=min(x+2,180)
+            y1=max(y-1,0)
+            y2=min(y+2,rmax)
+            if np.max(hough[y1:y2,x1:x2])==hough[y,x] and hough[y,x]!=0:
+                hough[y,x]=255
+            else:
+                hough[y,x]=0
     
+    x_idx=np.argsort(hough.ravel())[::-1][:10]
+    y_idx=x_idx.copy()
+    ts=x_idx%180
+    rs=y_idx//180
+    tmp_hough=np.zeros_like(hough,dtype=np.int)
+    tmp_hough[rs,ts]=255
+
+    tmp_hough=tmp_hough.astype(np.uint8)
+
     
 
     return
