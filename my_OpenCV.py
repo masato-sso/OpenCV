@@ -1459,3 +1459,30 @@ def extract_edge(filename):
     angle=angle.astype(np.uint8)
 
     return edge,angle
+
+def Hough_transform(filename):
+    '''
+    input->Hough transform->result
+    return numpy.array
+    '''
+    img=imread(filename).astype(np.float)
+    H,W,CHANNEL=img.shape
+
+    edge,angle=extract_edge(filename)
+
+    rmax=np.ceil(np.sqrt(H**2+W**2)).astype(np.int)
+    hough=np.zeros((1,180),dtype=np.int)
+    idx=np.where(edge==255)
+
+    for y,x in zip(idx[0],idx[1]):
+        for theta in range(180):
+            t=np.pi/180*theta
+            r=int(x*np.cos(t)+y*np.sin(t))
+            hough[r,theta]+=1
+    
+    hough=hough.astype(np.uint8)
+
+    
+    
+
+    return
