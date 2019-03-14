@@ -1522,7 +1522,7 @@ def Hough_transform(filename):
 
     return result
 
-def Morphology_expand(filename):
+def Morphology_expand(filename,time=1):
     '''
     input->Binarization
     ->Morphology expand->result
@@ -1533,12 +1533,11 @@ def Morphology_expand(filename):
 
     gray=convert_Binarization(filename).astype(np.float)
 
-    DIL=2
     MF=np.array(((0,1,0),
                  (1,0,1),
                  (0,1,0)),dtype=np.float)
     
-    for i in range(DIL):
+    for i in range(time):
         tmp_img=np.pad(gray,(1,1),'edge')
         for y in range(1,H+1):
             for x in range(1,W+1):
@@ -1547,7 +1546,7 @@ def Morphology_expand(filename):
 
     return gray
 
-def Morphology_contract(filename):
+def Morphology_contract(filename,time=1):
     '''
     input->Binarization
     ->Morphology contract->result
@@ -1558,12 +1557,11 @@ def Morphology_contract(filename):
 
     gray=convert_Binarization(filename).astype(np.float)
 
-    DIL=2
     MF=np.array(((0,1,0),
                  (1,0,1),
                  (0,1,0)),dtype=np.float)
     
-    for i in range(DIL):
+    for i in range(time):
         tmp_img=np.pad(gray,(1,1),'edge')
         for y in range(1,H+1):
             for x in range(1,W+1):
@@ -1571,3 +1569,4 @@ def Morphology_contract(filename):
                     gray[y-1,x-1]=0
 
     return gray
+
