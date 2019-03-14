@@ -1521,3 +1521,53 @@ def Hough_transform(filename):
     result=result.astype(np.uint8)
 
     return result
+
+def Morphology_expand(filename):
+    '''
+    input->Binarization
+    ->Morphology expand->result
+    return numpy.array
+    '''
+    img=imread(filename)
+    H,W,CHANNEL=img.shape
+
+    gray=convert_Binarization(filename).astype(np.float)
+
+    DIL=2
+    MF=np.array(((0,1,0),
+                 (1,0,1),
+                 (0,1,0)),dtype=np.float)
+    
+    for i in range(DIL):
+        tmp_img=np.pad(gray,(1,1),'edge')
+        for y in range(1,H+1):
+            for x in range(1,W+1):
+                if np.sum(MF*tmp_img[y-1:y+2,x-1:x+2])>=255:
+                    gray[y-1,x-1]=255
+
+    return gray
+
+def Morphology_contract(filename):
+    '''
+    input->Binarization
+    ->Morphology contract->result
+    return numpy.array
+    '''
+    img=imread(filename)
+    H,W,CHANNEL=img.shape
+
+    gray=convert_Binarization(filename).astype(np.float)
+
+    DIL=2
+    MF=np.array(((0,1,0),
+                 (1,0,1),
+                 (0,1,0)),dtype=np.float)
+    
+    for i in range(DIL):
+        tmp_img=np.pad(gray,(1,1),'edge')
+        for y in range(1,H+1):
+            for x in range(1,W+1):
+                if np.sum(MF*tmp_img[y-1:y+2,x-1:x+2])<255*4:
+                    gray[y-1,x-1]=0
+
+    return gray
