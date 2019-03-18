@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as Image
+import matplotlib.patches as patches
 
 def imread(filename):
     '''
@@ -1570,3 +1571,32 @@ def Morphology_contract(filename,time=1):
 
     return gray
 
+def SSD_match(filename,partfilename):
+    '''
+    SSD(filename1,part filename)->match result
+    return numpy.array
+    '''
+    img1=imread(filename).astype(np.float)
+    H1,W1,C1=img1.shape
+
+    img2=imread(partfilename).astype(np.float)
+    H2,W2,C2=img2.shape
+
+    i=-1
+    j=-1
+
+    s=255*H1*W1*C1
+    for y in range(H1-H2):
+        for x in range(W1-W2):
+            tmp_s=np.sum((img1[y:y+H2,x:x+W2]-img2[:,:,0:3])**2)
+            if tmp_s<s:
+                s=tmp_s
+                i=x
+                j=y
+    
+    result=img1.copy()
+
+    
+    result=ax.astype(np.uint8)
+
+    return ax
